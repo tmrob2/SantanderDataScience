@@ -35,6 +35,18 @@ where aplha and beta are controlling parameters and l(...) is the loss function.
 
 ## Approach
 
+### Initial Data Size
+We can calculate the size of the data input using the following
+```
+    def calculate_mem_consump(self):
+        nbytes = self.X.values.nbytes + self.X.index.nbytes + self.X.columns.nbytes
+        return nbytes/1000000000 
+```
+If only a small amount of memory is available, the reasonable solution is to impot a chunksize and then calculate the memory cost of that chunk. This will give a reasonable estimate of the data granted that data is either uniformly sparse or uniformly not sparse.
+
+Using this calcualtion the cost of the Pandas dataframe is 2.5Gb.
+### Cleaning
+
 As always the first step is to clean the data. There are a few columns that will need to be converted to dummy variables. These include:
 
 1. ind_empleado
