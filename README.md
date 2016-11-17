@@ -33,6 +33,7 @@ where aplha and beta are controlling parameters and l(...) is the loss function.
 ## Approach
 
 As always the first step is to clean the data. There are a few columns that will need to be converted to dummy variables. These include:
+
 1. ind_empleado
 2. sexo
 3. indresi
