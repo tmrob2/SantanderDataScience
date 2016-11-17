@@ -3,15 +3,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>69bc6347-1f1a-4f11-b77e-584a25c9d046</ProjectGuid>
+    <ProjectGuid>0d25a58d-84d6-4ace-95e9-9b273f17d45c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>SantanderDataScience.py</StartupFile>
+    <StartupFile>SDS.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>SantanderDataScience</Name>
-    <RootNamespace>SantanderDataScience</RootNamespace>
+    <Name>SDS</Name>
+    <RootNamespace>SDS</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="SantanderDataScience.py" />
+    <Compile Include="InputData.py" />
+    <Compile Include="Research.py" />
+    <Compile Include="SDS.py" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
