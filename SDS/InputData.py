@@ -49,4 +49,6 @@ class import_data:
         nbytes = self.X.values.nbytes + self.X.index.nbytes + self.X.columns.nbytes
         return nbytes/1000000000
 
+    def calculate_dummy_cols(self):
+
 
