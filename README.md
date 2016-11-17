@@ -15,3 +15,7 @@ Santander dataset and let **L** be the set of all labels. Then for each ![xinX](
  feature set we have an *m* dimensional vector such that: 
  
  ![codecogseqn](https://cloud.githubusercontent.com/assets/11049017/20386050/c829622e-acb1-11e6-90ae-f17235f9a06f.gif)
+ 
+ this represents the set set of labels for an element of **x**
+ 
+ 
