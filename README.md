@@ -36,8 +36,8 @@ where aplha and beta are controlling parameters and l(...) is the loss function.
 ## Approach
 
 ### Initial Data Size
-We can calculate the size of the data input using the following
-```
+We can calculate the size of the data input using the following, we keep the data definitions from above:
+```python
     def calculate_mem_consump(self):
         nbytes = self.X.values.nbytes + self.X.index.nbytes + self.X.columns.nbytes
         return nbytes/1000000000 
