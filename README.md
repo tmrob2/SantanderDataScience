@@ -32,5 +32,13 @@ where aplha and beta are controlling parameters and l(...) is the loss function.
 
 ## Approach
 
-There are manu approaches that can be taken. Below is an example using support vector machines and PCA.
+As always the first step is to clean the data. There are a few columns that will need to be converted to dummy variables. These include:
+1. ind_empleado
+2. sexo
+3. indresi
+4. indext
+5. conuemp
+6. canal_entrada
+7. indfall
+8. nomprov
 
