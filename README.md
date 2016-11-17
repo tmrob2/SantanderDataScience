@@ -1,4 +1,4 @@
-# SantanderDataScience
+# Kaggle: Santander Data Science
 ## Introduction
 The Santander data project is a multi label classification assignment.
 
@@ -27,3 +27,10 @@ Santander dataset and let **L** be the set of all labels. Then for each ![xinX](
  is the equivalent of the classification boundary crossing low density regions. The prediction of the k-th label F_k is the solution to the optimisation problem
  
  ![optimisationBound](https://cloud.githubusercontent.com/assets/11049017/20387550/8c0553c8-acb8-11e6-80c6-4b314926a763.gif)
+
+where aplha and beta are controlling parameters and l(...) is the loss function. 
+
+## Approach
+
+There are manu approaches that can be taken. Below is an example using support vector machines and PCA.
+
