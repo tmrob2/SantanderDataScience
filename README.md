@@ -48,29 +48,30 @@ Using this calcualtion the cost of the Pandas dataframe is 2.5Gb.
 ### Cleaning
 
 As always the first step is to clean the data. There are a few columns that will need to be converted to dummy variables. These include:
+
 Columns Name | Data Type | Unique Values
---- | --- | ---
-fecha_dato |<class 'str'> | 17
-ncodpers |<class 'numpy.int64'>| 956645
-ind_empleado| <class 'str'>| 6
-pais_residencia |<class 'str'>| 119
-sexo| <class 'str'>| 3
-age |<class 'str'> |235
-fecha_alta| <class 'str'> |6757
-ind_nuevo |<class 'numpy.float64'>| 3
-antiguedad |<class 'str'> |507
-indrel |<class 'numpy.float64'> |3
-ult_fec_cli_1t| <class 'float'>| 224
-indrel_1mes| <class 'float'> |14
-tiprel_1mes |<class 'str'> |6
-indresi |<class 'str'>| 3
-indext | <class 'str'> | 3
-conyuemp | <class 'float'> | 3
-canal_entrada | <class 'str'>| 163
-indfall | <class 'str'> | 3
-tipodom | <class 'numpy.float64'> |2
-cod_prov | <class 'numpy.float64'>| 53
-nomprov | <class 'str'> | 53
-ind_actividad_cliente | <class 'numpy.float64'> | 3
-renta | <class 'numpy.float64'>| 520995
+:---: | :---: | :---:
+fecha_dato |class 'str' | 17
+ncodpers |class 'numpy.int64'| 956645
+ind_empleado| class 'str'| 6
+pais_residencia |class 'str'| 119
+sexo| class 'str'| 3
+age |class 'str' |235
+fecha_alta| class 'str' |6757
+ind_nuevo |class 'numpy.float64'| 3
+antiguedad |class 'str' |507
+indrel |class 'numpy.float64' |3
+ult_fec_cli_1t| class 'float'| 224
+indrel_1mes| class 'float' |14
+tiprel_1mes |class 'str' |6
+indresi |class 'str'| 3
+indext | class 'str' | 3
+conyuemp | class 'float' | 3
+canal_entrada | class 'str'| 163
+indfall | class 'str' | 3
+tipodom | class 'numpy.float64' |2
+cod_prov | class 'numpy.float64'| 53
+nomprov | class 'str' | 53
+ind_actividad_cliente | class 'numpy.float64' | 3
+renta | class 'numpy.float64' | 520995
 
