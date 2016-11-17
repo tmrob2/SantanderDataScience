@@ -12,4 +12,4 @@ information.
 To get started we are going to need a basic definition of the matrices involved. This will help with the 
 formulation of the python code we will deploy to tackle this problem. Let **X** denote the feature space of the 
 Santander dataset and let **L** be the set of all labels. Then for each ![alt text](~/PycharmProjects/SantanderDataScience/Images/xinX.gif) where *x* is an element of the
- feature set we have an *m* dimensional vector such that **V** = {0,1}^m and __Y__
+ feature set we have an *m* dimensional vector such that ![codecogseqn](https://cloud.githubusercontent.com/assets/11049017/20386050/c829622e-acb1-11e6-90ae-f17235f9a06f.gif)
