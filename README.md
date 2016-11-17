@@ -18,7 +18,7 @@ Santander dataset and let **L** be the set of all labels. Then for each ![xinX](
  
  this represents the set set of labels for an element of **x**. Thus the set of all label values corresponding to the set **X** is the set:
  
- ![lebelSet](https://cloud.githubusercontent.com/assets/11049017/20387111/83cf57dc-acb6-11e6-8a92-65fe67fb6d08.gif)
+ ![lebelSet](https://cloud.githubusercontent.com/assets/11049017/20388671/df603df8-acbd-11e6-8efd-84fc3efe46fc.gif)
  
  Similar to graph based unsupervised/ semi supervised learning we construct a positive semi definite matrix **W** where W_ij is the similarity matrix between the i-th and j-th instances. Minimising 
  
