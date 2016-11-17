@@ -16,6 +16,10 @@ Santander dataset and let **L** be the set of all labels. Then for each ![xinX](
  
  ![codecogseqn](https://cloud.githubusercontent.com/assets/11049017/20386050/c829622e-acb1-11e6-90ae-f17235f9a06f.gif)
  
- this represents the set set of labels for an element of **x**
+ this represents the set set of labels for an element of **x**. Thus the set of all labels corresponding to an instance **x** is:
+ 
+ ![lebelSet](https://cloud.githubusercontent.com/assets/11049017/20387111/83cf57dc-acb6-11e6-8a92-65fe67fb6d08.gif)
+ 
+ Similar to graph based unsupervised/ semi supervised learning we construct a positive semi definite matrix **W** where W_ij is the similarity matrix between the i-th and j-th instances. Minimising eq is the equivalent of the classification boundary crossing low density regions. The prediction of the k-th label F_k is the solution to the optimisation problem
  
  
