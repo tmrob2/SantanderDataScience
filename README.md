@@ -23,7 +23,7 @@ Santander dataset and let **L** be the set of all labels. Then for each ![xinX](
  
  ![lebelSet](https://cloud.githubusercontent.com/assets/11049017/20388671/df603df8-acbd-11e6-8efd-84fc3efe46fc.gif)
  
- Similar to graph based unsupervised/ semi supervised learning we construct a positive semi definite matrix **W** where W_ij is the similarity matrix between the i-th and j-th instances. Minimising 
+ Similar to graph based unsupervised/ semi supervised learning we construct a positive semi definite matrix **W** where W_ij is the adjacency matrix between the i-th and j-th instances. Minimising 
  
  ![classificationBound](https://cloud.githubusercontent.com/assets/11049017/20387528/706b35e2-acb8-11e6-9427-a259baef6588.gif) 
  
@@ -31,7 +31,7 @@ Santander dataset and let **L** be the set of all labels. Then for each ![xinX](
  
  ![optimisationBound](https://cloud.githubusercontent.com/assets/11049017/20387550/8c0553c8-acb8-11e6-80c6-4b314926a763.gif)
 
-where aplha and beta are controlling parameters and l(...) is the loss function. 
+where aplha and beta are controlling parameters and l(...) is the loss function. The function l(Y,f) is a convex function and therefore this is a convex optimisation problem. 
 
 ## Approach
 
@@ -49,11 +49,11 @@ Using this calcualtion the cost of the Pandas dataframe is 2.5Gb.
 
 As always the first step is to clean the data. There are a few columns that will need to be converted to dummy variables. These include:
 
-Columns Name | Data Type | Unique Values
-:---: | :---: | :---:
-fecha_dato |class 'str' | 17
-ncodpers |class 'numpy.int64'| 956645
-ind_empleado| class 'str'| 6
+Columns Name | Data Type | Unique Values | Method
+:---: | :---: | :---: | ---
+fecha_dato |class 'str' | 17 | convert to date and scale
+ncodpers |class 'numpy.int64'| 956645 | scale
+ind_empleado| class 'str'| 6 | 
 pais_residencia |class 'str'| 119
 sexo| class 'str'| 3
 age |class 'str' |235
