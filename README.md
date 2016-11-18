@@ -49,11 +49,11 @@ Using this calcualtion the cost of the Pandas dataframe is 2.5Gb.
 
 As always the first step is to clean the data. There are a few columns that will need to be converted to dummy variables. These include:
 
-Columns Name | Data Type | Unique Values
-:---: | :---: | :---:
-fecha_dato |class 'str' | 17
-ncodpers |class 'numpy.int64'| 956645
-ind_empleado| class 'str'| 6
+Columns Name | Data Type | Unique Values | Method
+:---: | :---: | :---: | ---
+fecha_dato |class 'str' | 17 | convert to date and scale
+ncodpers |class 'numpy.int64'| 956645 | scale
+ind_empleado| class 'str'| 6 | 
 pais_residencia |class 'str'| 119
 sexo| class 'str'| 3
 age |class 'str' |235
