@@ -176,3 +176,12 @@ class ImportData:
         plt.xticks(np.arange(0.5, len(df.columns), 1), df.columns, rotation='vertical') 
         plt.title('Product relationships visualisation')
         fig1.savefig('prod_adj.png')
+
+import pandas as pd
+df = pd.DataFrame(A, index = cls_data.Y.columns.values, columns = cls_data.Y.columns.values)
+fig1 = plt.figure(figsize=(6,6))
+plt.pcolor(df,cmap=plt.cm.Reds)
+plt.yticks(np.arange(0.5, len(df.index), 1), df.index)
+plt.xticks(np.arange(0.5, len(df.columns), 1), df.columns, rotation='vertical') 
+plt.title('Product relationships visualisation')
+fig1.savefig('prod_adj.png')
