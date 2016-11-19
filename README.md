@@ -33,6 +33,26 @@ Santander dataset and let **L** be the set of all labels. Then for each ![xinX](
 
 where aplha and beta are controlling parameters and l(...) is the loss function. The function l(Y,f) is a convex function and therefore this is a convex optimisation problem. 
 
+![adjmat](https://github.com/tmrob2/SantanderDataScience/blob/master/SDS/prod_adj.png)
+
+To produce this adjacency W:
+
+```python
+ def create_adjacency_of_products(self):
+     l = self.Y.shape[1]
+     A = np.repeat(0, l**2).reshape(l, l)
+     for i,r in self.Y.iterrows():
+         if sum(r)>1:  
+             for j,k in itertools.combinations(np.where(r)[0], 2):
+                 A[k][j] = A[k][j] + 1 
+                 A[k][k] = A[k][k] + 1
+
+     for i in range(A.shape[0]):
+         for j in range(i, A.shape[1]):
+             A[i][j] = A[j][i]
+     return A
+```
+
 ## Approach
 
 ### Initial Data Size
