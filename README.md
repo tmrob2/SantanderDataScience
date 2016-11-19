@@ -107,3 +107,9 @@ nomprov | class 'str' | 53 | drop
 ind_actividad_cliente | class 'numpy.float64' | 3 | 1 dummy variable {0,1}
 renta | class 'numpy.float64' | 520995 | scale
 
+This table was produced with:
+```python
+def return_list_of_cat_cols(self):
+    for i in self.X.columns:
+        print(i, type(self.X.loc[0][i]), len(self.X[i].unique()))
+```
