@@ -5,7 +5,7 @@ from sklearn import preprocessing
 
 
 class ImportData:
-    def __init__(self, vs: bool = False):
+    def __init__(self, vs: bool = False, set_dummies: bool=False, all_rows: bool=True):
         """
         The initialisation step will input the data into memory (data is not that large easily fits
         into RAM)
@@ -16,12 +16,15 @@ class ImportData:
             path = '~/Data/SantanderDataScience/train_ver2.csv'
 
         # Get the feature set
-        self.dataset = pd.read_csv(path, nrows=100000)
+        if all_rows:
+            self.dataset = pd.read_csv(path)
+        else:
+            self.dataset = pd.read_csv(path, nrows=100000)
 
         self.X = self.dataset.iloc[:, 0:24]
 
         # There seems to be 0.6% of rows that have NaN and this is ubiquitous among the feature set
-        self.X = self.X[np.isfinite(self.X['indrel_1mes'])]
+        self.X = self.X[self.X['age']!='NaN']
         # =======================================================================================
         #                                        CLEANING 
         # =======================================================================================
@@ -30,6 +33,8 @@ class ImportData:
         # Convert the dates to days from the beginning of the year or from now, whichever
         # makes more sense.
         # =======================================================================================
+        # Convert string to continuous where necessary
+        self.X['age'].apply(lambda x: np.float_(x) if not ' NA' else 0)
         # Convert the record date into days and set the start as the beginning of 2015
         self.X['days_recorded_from_ny'] = self.X.fecha_dato.apply(lambda x:
                                                          (datetime.datetime.strptime(x, "%Y-%m-%d") -
@@ -74,7 +79,7 @@ class ImportData:
         self.X.drop('indext', axis=1, inplace=True)
 
         # Set the new customer index to a binary value
-        self.X['new_cust'] = self.X.innd_nuevo.fillna(0)
+        self.X['new_cust'] = self.X.ind_nuevo.fillna(0)
 
         # primary customer at the end of the month
         self.X['indrel'] = self.X.indrel.apply(lambda x: 1 if 1 else 0)
@@ -85,24 +90,33 @@ class ImportData:
         # =======================================================================================
         #                              SETTING THE DUMMY VARIABLES
         # =======================================================================================
-        d_account_type = pd.get_dummies(self.X['indrel_1mes'])
-        d_employee_ind = pd.get_dummies(self.X['ind_empleado'])
-        d_customer_relation = pd.get_dummies(self.X['tiprel_1mes'])
-        d_channel = pd.get_dummies(self.X['canal_entrada'])
-        d_province = pd.get_dummies(self.X['cod_prov'])
-        d_country_res = pd.get_dummies(self.X['pais_residencia'])
-        d_class = pd.get_dummies(self.X['segmento'])
+        if set_dummies:
+            d_account_type = pd.get_dummies(self.X['indrel_1mes'])
+            d_employee_ind = pd.get_dummies(self.X['ind_empleado'])
+            d_customer_relation = pd.get_dummies(self.X['tiprel_1mes'])
+            d_channel = pd.get_dummies(self.X['canal_entrada'])
+            d_province = pd.get_dummies(self.X['cod_prov'])
+            d_country_res = pd.get_dummies(self.X['pais_residencia'])
+            d_class = pd.get_dummies(self.X['segmento'])
 
-        # Attach all of the dummy variables to the feature set and delete the columns that
-        # they came from
-        self.X = pd.concat([self.X, d_employee_ind, d_account_type, d_customer_relation,
-                   d_channel, d_province, d_country_res, d_class])
+            # Attach all of the dummy variables to the feature set and delete the columns that
+            # they came from
+            self.X = pd.concat([self.X, d_employee_ind, d_account_type, d_customer_relation,
+                       d_channel, d_province, d_country_res, d_class])
+
+            self.X.drop('indrel_1mes', axis=1, inplace=True)
+            self.X.drop('ind_empleado', axis=1, inplace=True)
+            self.X.drop('tiprel_1mes', axis=1, inplace=True)
+            self.X.drop('canal_entrada', axis=1, inplace=True)
+            self.X.drop('cod_prov', axis=1, inplace=True)
+            self.X.drop('pais_residencia', axis=1, inplace=True)
+            self.X.drop('segmento', axis=1, inplace=True)
 
         # ======================================================================================
         #                            SCALING THE CONTINUOUS VARIABLES
         # ======================================================================================
 
-        preprocessing.scale(self.X.age)
+        #preprocessing.scale(self.X.age)
 
         self.Y = self.dataset.iloc[:, 25:-1]
 
