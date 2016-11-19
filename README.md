@@ -78,7 +78,7 @@ P    |      874
 It is easily observed now how to deal with this data as there appears to be multiple 'unique' instances of the same values. We 
 really only require one mention of 3.0 and not every variation of it.
 
-After conducting this process for every feature the foloowing table can be assembled as an instruction template for how we have dealt
+After conducting this process for every feature the following table can be assembled as an instruction template for how we have dealt
 with the feature set.
 
 Columns Name | Data Type | Unique Values | Method

@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 import datetime
 from sklearn import preprocessing
-
+import networkx as nx 
+import matplotlib.pyplot as plt
+import itertools
 
 class ImportData:
     def __init__(self, vs: bool = False, set_dummies: bool=False, all_rows: bool=True):
@@ -19,7 +21,7 @@ class ImportData:
         if all_rows:
             self.dataset = pd.read_csv(path)
         else:
-            self.dataset = pd.read_csv(path, nrows=100000)
+            self.dataset = pd.read_csv(path, nrows=1000)
 
         self.X = self.dataset.iloc[:, 0:24]
 
@@ -87,6 +89,11 @@ class ImportData:
         # Change the employee spouse reference conyuemp to fill NaN with 0. This is then binary
         self.X.conyuemp.fillna(0)
 
+        # The dummy variables for the indrel1_1mes and tiprel_1mes will not work correctly until the
+        # following have been applied
+        self.X.indrel_1mes = self.X.indrel_1mes.apply(lambda x: self.run_f(str(x)[0]))
+        
+
         # =======================================================================================
         #                              SETTING THE DUMMY VARIABLES
         # =======================================================================================
@@ -130,3 +137,42 @@ class ImportData:
 
     def calculate_dummy_cols(self):
         pass
+
+    def run_f(self, input):
+        x = ''
+        if input=='1':
+            x = 'primary_type'
+        elif input=='2':
+            x = 'coowner_type'
+        elif input=='3':
+            x = 'former_primary_type'
+        elif input=='4':
+            x = 'former_coowner_type'
+        elif input=='P':
+            x = 'potential_type'
+        else:
+            x= 'none_type'
+        return x
+    
+    def create_adjacency_of_products(self):
+        l = self.Y.shape[1]
+        A = np.repeat(0, l**2).reshape(l, l)
+        for i,r in self.Y.iterrows():
+            if sum(r)>1:  
+                for j,k in itertools.combinations(np.where(r)[0], 2):
+                    A[k][j] = A[k][j] + 1 
+                    A[k][k] = A[k][k] + 1
+
+        for i in range(A.shape[0]):
+            for j in range(i, A.shape[1]):
+                A[i][j] = A[j][i]
+        return A
+    
+    def plot_adj(self, A):
+        df = pd.DataFrame(A, index = self.Y.columns.values, columns = self.Y.columns.values)
+        fig1 = plt.figure(figsize=(8,8))
+        plt.pcolor(df,cmap=plt.cm.Reds)
+        plt.yticks(np.arange(0.5, len(df.index), 1), df.index)
+        plt.xticks(np.arange(0.5, len(df.columns), 1), df.columns, rotation='vertical') 
+        plt.title('Product relationships visualisation')
+        fig1.savefig('prod_adj.png')
