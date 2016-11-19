@@ -49,29 +49,61 @@ Using this calcualtion the cost of the Pandas dataframe is 2.5Gb.
 
 As always the first step is to clean the data. There are a few columns that will need to be converted to dummy variables. These include:
 
+A useful piece of code in this process was to determine the dummy variables needed to represent the data. Therefore, it is neceesary to
+calculate the unique elements in each feature set. One feature that was a real problem to deal with is indrel_1mes. Using:
+
+```python
+cls_data.X.indrel_1mes.value_counts(dropna=False)
+```
+
+This produces the following:
+
+Element | Count
+:---: | :---:
+1.0  |  7277607
+1.0  |  4017746
+1    |  2195328
+NaN  |   149781
+3.0  |     1804
+3.0  |     1409
+3    |     1137
+P    |      874
+2    |      483
+2.0  |      479
+2.0  |      355
+4.0  |      143
+4.0  |       93
+4    |       70
+
+It is easily observed now how to deal with this data as there appears to be multiple 'unique' instances of the same values. We 
+really only require one mention of 3.0 and not every variation of it.
+
+After conducting this process for every feature the foloowing table can be assembled as an instruction template for how we have dealt
+with the feature set.
+
 Columns Name | Data Type | Unique Values | Method
-:---: | :---: | :---: | ---
-fecha_dato |class 'str' | 17 | convert to date and scale
+:---: | :---: | :---: | :---
+fecha_dato |class 'str' | 17 | convert to days from new year and scale
 ncodpers |class 'numpy.int64'| 956645 | scale
-ind_empleado| class 'str'| 6 | 
-pais_residencia |class 'str'| 119
-sexo| class 'str'| 3
-age |class 'str' |235
-fecha_alta| class 'str' |6757
-ind_nuevo |class 'numpy.float64'| 3
-antiguedad |class 'str' |507
-indrel |class 'numpy.float64' |3
-ult_fec_cli_1t| class 'float'| 224
-indrel_1mes| class 'float' |14
-tiprel_1mes |class 'str' |6
-indresi |class 'str'| 3
-indext | class 'str' | 3
-conyuemp | class 'float' | 3
-canal_entrada | class 'str'| 163
-indfall | class 'str' | 3
-tipodom | class 'numpy.float64' |2
-cod_prov | class 'numpy.float64'| 53
-nomprov | class 'str' | 53
-ind_actividad_cliente | class 'numpy.float64' | 3
-renta | class 'numpy.float64' | 520995
+ind_empleado| class 'str'| 6 | 6 dummy variables {0,1}
+pais_residencia |class 'str'| 119| 119 dummy variables {0,1}
+sexo| class 'str'| 3| 1 dummy variable Male {0,1}
+age |class 'str' |235 | scale
+fecha_alta| class 'str' |6757| convert to days from now and scale
+ind_nuevo |class 'numpy.float64'| 3 | 1 dummy variable new customer
+antiguedad |class 'str' |507 | scale
+indrel |class 'numpy.float64' |3 | Primary customer at month end
+ult_fec_cli_1t| class 'float'| 224 | Convert to days from now and scale
+indrel_1mes| class 'float' |14 | 5 dummy variables {0,1}
+tiprel_1mes |class 'str' |6 | 5 dummry variables {0,1}
+indresi |class 'str'| 3 | 1 dummy variable {0,1}
+indext | class 'str' | 3 | 1 dummy vairable {0,1}
+conyuemp | class 'float' | 3 | 1 dummy variable {0,1}
+canal_entrada | class 'str'| 163 | 163 dummry variables {0,1}
+indfall | class 'str' | 3 | 1 dummy variable {0,1}
+tipodom | class 'numpy.float64' |2 | 1 dummy variable {0,1}
+cod_prov | class 'numpy.float64'| 53 | 53 dummy variables {0,1}
+nomprov | class 'str' | 53 | drop
+ind_actividad_cliente | class 'numpy.float64' | 3 | 1 dummy variable {0,1}
+renta | class 'numpy.float64' | 520995 | scale
 
