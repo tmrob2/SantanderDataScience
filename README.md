@@ -33,6 +33,8 @@ Santander dataset and let **L** be the set of all labels. Then for each ![xinX](
 
 where aplha and beta are controlling parameters and l(...) is the loss function. The function l(Y,f) is a convex function and therefore this is a convex optimisation problem. 
 
+## Product Adjacency Matrix Visualisation
+
 ![adjmat](https://github.com/tmrob2/SantanderDataScience/blob/master/SDS/prod_adj.png)
 
 To produce this adjacency W:
