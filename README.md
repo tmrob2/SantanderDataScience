@@ -69,9 +69,7 @@ If only a small amount of memory is available, the reasonable solution is to imp
 Using this calcualtion the cost of the Pandas dataframe is 2.5Gb.
 ### Cleaning
 
-As always the first step is to clean the data. There are a few columns that will need to be converted to dummy variables. These include:
-
-A useful piece of code in this process was to determine the dummy variables needed to represent the data. Therefore, it is necessary to
+As always the first step is to clean the data. A useful piece of code in this process was to determine the dummy variables needed to represent the data. Therefore, it is necessary to
 calculate the unique elements in each feature set. One feature that was a real problem to deal with is indrel_1mes. Using:
 
 ```python
@@ -135,3 +133,5 @@ def return_list_of_cat_cols(self):
     for i in self.X.columns:
         print(i, type(self.X.loc[0][i]), len(self.X[i].unique()))
 ```
+
+## PCA and Intuition of SVC

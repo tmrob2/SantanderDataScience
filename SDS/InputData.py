@@ -22,7 +22,7 @@ class ImportData:
         if all_rows:
             self.dataset = pd.read_csv(path)
         else:
-            self.dataset = pd.read_csv(path, nrows=1000)
+            self.dataset = pd.read_csv(path, nrows=100000)
 
         self.X = self.dataset.iloc[:, 0:24]
 
@@ -70,8 +70,8 @@ class ImportData:
         self.X.drop('ult_fec_cli_1t', axis=1, inplace=True)
 
         # Drop the nomprov column as this is replicated in the cod_prov feature
-        self.X.drop('nomprov', axis=1, inplace=True)
-
+        self.X.drop('cod_prov', axis=1, inplace=True)
+        
         # Turn sex into a dummy variable and concatenate it to the original feature set
         self.X['male'] = self.X['sexo'].apply(lambda x: 1 if 'H' else 0)
         self.X.drop('sexo', axis=1, inplace=True)
@@ -97,7 +97,7 @@ class ImportData:
         self.X['indrel'] = self.X.indrel.apply(lambda x: 1 if 1 else 0)
 
         # Change the employee spouse reference conyuemp to fill NaN with 0. This is then binary
-        self.X.conyuemp.fillna(0)
+        self.X.conyuemp = self.X.conyuemp.fillna(0)
 
         # The dummy variables for the indrel1_1mes and tiprel_1mes will not work correctly until the
         # following have been applied. This creates recognisable and standadised dummy variables
@@ -107,6 +107,8 @@ class ImportData:
         self.X.ind_empleado = self.X.ind_empleado.apply(lambda x: self.run_f3(x))
         self.X.segmento = self.X.segmento.apply(lambda x: 'none_type_work' if x=='NaN' else x)
 
+        self.X.indfall = self.X.indfall.apply(lambda x: 1 if 'S' else 0)
+
         # =======================================================================================
         #                              SETTING THE DUMMY VARIABLES
         # =======================================================================================
@@ -115,7 +117,7 @@ class ImportData:
             d_employee_ind = pd.get_dummies(self.X['ind_empleado'])
             d_customer_relation = pd.get_dummies(self.X['tiprel_1mes'])
             d_channel = pd.get_dummies(self.X['canal_entrada'])
-            d_province = pd.get_dummies(self.X['cod_prov'])
+            d_province = pd.get_dummies(self.X['nomprov'])
             d_country_res = pd.get_dummies(self.X['pais_residencia'])
             d_class = pd.get_dummies(self.X['segmento'])
 
@@ -128,7 +130,7 @@ class ImportData:
             self.X.drop('ind_empleado', axis=1, inplace=True)
             self.X.drop('tiprel_1mes', axis=1, inplace=True)
             self.X.drop('canal_entrada', axis=1, inplace=True)
-            self.X.drop('cod_prov', axis=1, inplace=True)
+            self.X.drop('nomprov', axis=1, inplace=True)
             self.X.drop('pais_residencia', axis=1, inplace=True)
             self.X.drop('segmento', axis=1, inplace=True)
 
@@ -136,15 +138,25 @@ class ImportData:
         #                            SCALING THE CONTINUOUS VARIABLES
         # ======================================================================================
         if scaling:
-            self.X.age = preprocessing.scale(self.X.age)
-            self.X.days_recorded_from_ny = preprocessing.scale(self.X.days_recorded_from_ny)
-            self.X.tenure_days_from_now = preprocessing.scale(self.X.tenure_days_from_now)
-            self.X.antiguedad = preprocessing.scale(self.X.antiguedad)
-            self.X.renta = preprocessing.scale(self.X.renta)
-            self.X.renta[self.earn_ind[0]] = -2
+            min_max_scaler = preprocessing.MinMaxScaler()
+
+            self.X.age = min_max_scaler.fit_transform(self.X.age)
+            self.X.days_recorded_from_ny = min_max_scaler.fit_transform(self.X.days_recorded_from_ny)
+            self.X.days_primary_churn_from_now = min_max_scaler.fit_transform(self.X.days_primary_churn_from_now)
+            self.X.tenure_days_from_now =  min_max_scaler.fit_transform(self.X.tenure_days_from_now)
+            self.X.antiguedad =  min_max_scaler.fit_transform(self.X.antiguedad)
+            self.X.renta =  min_max_scaler.fit_transform(self.X.renta)
+            #self.X.renta[self.earn_ind[0]] = -2
 
         #Set the target set
-        self.Y = self.dataset.iloc[:, 25:-1]
+        self.Y = self.dataset.iloc[self.X.index, 26:-1]
+        self.Y.ind_nomina_ult1 = self.Y.ind_nomina_ult1.fillna(0)
+        self.Y.ind_nom_pens_ult1 = self.Y.ind_nom_pens_ult1.fillna(0)
+        self.Y.ind_nomina_ult1 = self.Y.ind_nomina_ult1.apply(lambda x: int(x))
+        self.Y.ind_nom_pens_ult1 = self.Y.ind_nom_pens_ult1.apply(lambda x: int(x))
+        self.Y.drop(self.Y.columns.values[1], axis=1, inplace=True)
+        self.Y.drop(self.Y.columns.values[5], axis=1, inplace=True)
+        self.Y.drop(self.Y.columns.values[6], axis=1, inplace=True)
 
     def return_list_of_cat_cols(self):
         for i in self.X.columns:
