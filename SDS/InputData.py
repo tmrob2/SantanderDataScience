@@ -8,22 +8,35 @@ import itertools
 import math
 
 class ImportData:
-    def __init__(self, vs: bool = False, set_dummies: bool=False, all_rows: bool=True, scaling: bool=False):
+    def __init__(self, ide: str, set_dummies: bool=False, all_rows: bool=True, 
+                 scaling: bool=False, random_sample: bool=False):
         """
         The initialisation step will input the data into memory (data is not that large easily fits
         into RAM)
         """
-        if vs:
+        if ide == 'vs':
             path = 'C:/Users/Thomas/Documents/Data/Santander/train_ver2.csv'
+        elif ide == 'spyder':
+            path = 'C:/Users/611004435/Documents/Data/Santander/train_ver2.csv'
         else:
             path = '~/Data/SantanderDataScience/train_ver2.csv'
 
         # Get the feature set
+
+        self.dataset = pd.DataFrame()
         if all_rows:
             self.dataset = pd.read_csv(path)
         else:
-            self.dataset = pd.read_csv(path, nrows=100000)
-
+            if random_sample == False:
+                self.dataset = pd.read_csv(path, nrows=10000)
+            else:
+                nlinesfile= 5000000
+                nlines_rnd_sampl = 5000
+                lines2skip = np.random.choice(np.arange(1,nlinesfile+1), 
+                                              (nlinesfile-nlines_rnd_sampl), replace=False)
+                for chunk in pd.read_csv(path, skiprows=lines2skip, chunksize=100000):
+                    self.dataset = self.dataset.append(chunk)
+                    
         self.X = self.dataset.iloc[:, 0:24]
 
         # There seems to be 0.6% of rows that have NaN and this is ubiquitous among the feature set
