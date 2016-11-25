@@ -8,168 +8,155 @@ import itertools
 import math
 
 class ImportData:
-    def __init__(self, ide: str, set_dummies: bool=False, all_rows: bool=True, 
-                 scaling: bool=False, random_sample: bool=False):
-        """
-        The initialisation step will input the data into memory (data is not that large easily fits
-        into RAM)
-        """
+
+    read_path = ''
+
+    def get_path(self, ide):
         if ide == 'vs':
             path = 'C:/Users/Thomas/Documents/Data/Santander/train_ver2.csv'
         elif ide == 'spyder':
             path = 'C:/Users/611004435/Documents/Data/Santander/train_ver2.csv'
         else:
             path = '~/Data/SantanderDataScience/train_ver2.csv'
+        return path
 
-        # Get the feature set
-
-        self.dataset = pd.DataFrame()
+    def read_data(self, path):
+        dataset = pd.DataFrame()
         if all_rows:
-            self.dataset = pd.read_csv(path)
+            dataset = pd.read_csv(path)
         else:
             if random_sample == False:
-                self.dataset = pd.read_csv(path, nrows=10000)
+                dataset = pd.read_csv(path, nrows=10000)
             else:
                 nlinesfile= 5000000
                 nlines_rnd_sampl = 5000
                 lines2skip = np.random.choice(np.arange(1,nlinesfile+1), 
                                               (nlinesfile-nlines_rnd_sampl), replace=False)
                 for chunk in pd.read_csv(path, skiprows=lines2skip, chunksize=100000):
-                    self.dataset = self.dataset.append(chunk)
-                    
-        self.X = self.dataset.iloc[:, 0:24]
+                    dataset = dataset.append(chunk)
+        return dataset
 
-        # There seems to be 0.6% of rows that have NaN and this is ubiquitous among the feature set
-        self.X = self.X[(self.X['age']!='NaN') & (self.X['age']!= 'NA') & (self.X['age']!=' NA')]
+    def read_X(self, dataset: pd.DataFrame, col_from:int, col_to:int):
+        """ Allocate the feture set from the dataset"""
+        X = self.dataset.iloc[:, col_from:col_to]
+        return X
+
+    def remove_nan_rows(self, X, col, ls):
+        X = X[~X[col].isin(ls)]
+        return X
+
+    def drop_col(self, X, col_to_drop: list):
+        for i in col_to_drop: 
+            X.drop(i, axis=1, inplace=True)
+        return X
+
+    def apply_to_col(self, X, X_prime, new_col, f):
+        X[new_col] = (X_prime).map(f)
+        return X
+    
+    def clean_dataset(self, X):
+        """
+        =================================================================================
+        Do some cleaning of the categorical data to get dummy variables for these columns
+
+        Convert the dates to days from the beginning of the year or from now, whichever
+        makes more sense.
         
-        # Get rid of the customer code. We want to identify patterns in customer behaviour, I think that
-        # matching on customer code will introduce some bias. We can always revisit this later.  
-        self.X.drop('ncodpers', axis=1, inplace=True)
-       
-        # =======================================================================================
-        #                                        CLEANING 
-        # =======================================================================================
-        # Do some cleaning of the categorical data to get dummy variables for these columns
+        # ===============================================================================
+        #Remove the rows without a tenure date
+        """
 
-        # Convert the dates to days from the beginning of the year or from now, whichever
-        # makes more sense.
-        # =======================================================================================
-        # Earnings
-        self.X.renta = self.X.renta.apply(lambda x: -99 if math.isnan(x) else x)
-        self.earn_ind = np.where(self.X.renta==-99)
-
-        # Convert string to continuous where necessary
-        self.X['age'].apply(lambda x: np.float_(x))
-        # Convert the record date into days and set the start as the beginning of 2015
-        self.X['days_recorded_from_ny'] = self.X.fecha_dato.apply(lambda x:
-                                                         (datetime.datetime.strptime(x, "%Y-%m-%d") -
-                                                          datetime.datetime(2015, 1, 1)).days)
-        self.X.drop('fecha_dato', axis=1, inplace=True)
-
-        # Convert the tenure date to days from now so it is a proper length. We will also need
-        # to scale this later
-        self.X['tenure_days_from_now'] = self.X.fecha_alta.apply(lambda x:
-                                                   (datetime.datetime.now() -
-                                                    datetime.datetime.strptime(x, "%Y-%m-%d")).days
-                                                   if isinstance(x, str) else 0)
-        self.X.drop('fecha_alta', axis=1, inplace=True)
-
-        # Convert the primary customer churn date to a delta between date and now represented
-        # as days. This will need to be scaled later.
-        self.X['days_primary_churn_from_now'] = self.X.ult_fec_cli_1t.apply(lambda x:
-                                       (datetime.datetime.now() -
-                                        datetime.datetime.strptime(x, "%Y-%m-%d")).days
-                                       if isinstance(x, str) else 0)
-        self.X.drop('ult_fec_cli_1t', axis=1, inplace=True)
-
-        # Drop the nomprov column as this is replicated in the cod_prov feature
-        self.X.drop('cod_prov', axis=1, inplace=True)
-        
-        # Turn sex into a dummy variable and concatenate it to the original feature set
-        self.X['male'] = self.X['sexo'].apply(lambda x: 1 if 'H' else 0)
-        self.X.drop('sexo', axis=1, inplace=True)
-
-        # Clean the residence index set Nan to 'S'. We may have to delete the rows that are
-        # associated with NaNs in this column because we are being forced to make a choice
-        self.X['indresi'].fillna('S')
-        self.X['resident'] = self.X['indresi'].apply(lambda x: 1 if 'S' else 0)
-        self.X.drop('indresi', axis=1, inplace=True)
-
-        # Clean the foreign index set NaN to 'N'. We make this assumption because we would
-        # expect that most banking customers would be from spain and the proportion of NaNs
-        # are low compared with the amount of foreigners. Hopefully this will be dimensionally
-        # reduced when we run through the PCA analysis
-        self.X['indext'].fillna('S')
-        self.X['foreign'] = self.X['indext'].apply(lambda x: 1 if 'S' else 0)
-        self.X.drop('indext', axis=1, inplace=True)
-
-        # Set the new customer index to a binary value
-        self.X['new_cust'] = self.X.ind_nuevo.fillna(0)
-
-        # primary customer at the end of the month
-        self.X['indrel'] = self.X.indrel.apply(lambda x: 1 if 1 else 0)
-
-        # Change the employee spouse reference conyuemp to fill NaN with 0. This is then binary
+        X = self.remove_nan_rows(X,'fecha_alta', ['NaN','NA',' NA']) 
+        X['new_cust'] = X['ind_nuevo'].fillna(0)
         self.X.conyuemp = self.X.conyuemp.fillna(0)
 
-        # The dummy variables for the indrel1_1mes and tiprel_1mes will not work correctly until the
-        # following have been applied. This creates recognisable and standadised dummy variables
-        self.X.indrel_1mes = self.X.indrel_1mes.apply(lambda x: self.run_f(str(x)[0]))
-        self.X.tiprel_1mes = self.X.tiprel_1mes.apply(lambda x: self.run_f2(str(x)[0]))
-        self.X.ind_empleado = self.X.ind_empleado.apply(lambda x: 'not_emp' if x=='N' else x)
-        self.X.ind_empleado = self.X.ind_empleado.apply(lambda x: self.run_f3(x))
-        self.X.segmento = self.X.segmento.apply(lambda x: 'none_type_work' if x=='NaN' else x)
+        X = self.apply_to_col(X, X['age'].fillna(0), 'age', lambda x: np.float(x))
+        X = self.apply_to_col(X, X['fecha_dato'], 'days_recorded_from_ny',
+                                     lambda x: datetime.datetime.strptime(x,"%Y-%m-%d" )-
+                                     datetime.datetime(2015,1,1))
 
-        self.X.indfall = self.X.indfall.apply(lambda x: 1 if 'S' else 0)
+        X = self.apply_to_col(X, X['fecha_alta'], 
+                              'tenure', lambda x: (datetime.datetime.now() - 
+                              datetime.datetime.strptime(x, "%Y-%m-%d")).days)
 
-        # =======================================================================================
-        #                              SETTING THE DUMMY VARIABLES
-        # =======================================================================================
-        if set_dummies:
-            d_account_type = pd.get_dummies(self.X['indrel_1mes'])
-            d_employee_ind = pd.get_dummies(self.X['ind_empleado'])
-            d_customer_relation = pd.get_dummies(self.X['tiprel_1mes'])
-            d_channel = pd.get_dummies(self.X['canal_entrada'])
-            d_province = pd.get_dummies(self.X['nomprov'])
-            d_country_res = pd.get_dummies(self.X['pais_residencia'])
-            d_class = pd.get_dummies(self.X['segmento'])
+        X = self.apply_to_col(X, X['ult_fec_cli_1t'], 'days_churned', 
+                              lambda x: (datetime.datetime.now() - 
+                              datetime.datetime.strptime(x, "%Y-%m-%d")).days 
+                              if isinstance(x, str) else 0)
+        
+        X = self.apply_to_col(X, X['sexo'], 'male', lambda x: 1 if 'H' else 0)
 
-            # Attach all of the dummy variables to the feature set and delete the columns that
-            # they came from
-            self.X = pd.concat([self.X, d_employee_ind, d_account_type, d_customer_relation,
-                       d_channel, d_province, d_country_res, d_class], axis=1)
+        X = self.apply_to_col(X, X['indresi'].fillna('S'), 'resident', lambda x: 1 if 'S' else 0)
 
-            self.X.drop('indrel_1mes', axis=1, inplace=True)
-            self.X.drop('ind_empleado', axis=1, inplace=True)
-            self.X.drop('tiprel_1mes', axis=1, inplace=True)
-            self.X.drop('canal_entrada', axis=1, inplace=True)
-            self.X.drop('nomprov', axis=1, inplace=True)
-            self.X.drop('pais_residencia', axis=1, inplace=True)
-            self.X.drop('segmento', axis=1, inplace=True)
+        X = self.apply_to_col(X, X['indext'].fillna('S'), 'foreign', lambda x: 1 if 'S' else 0)
+
+        X = self.apply_to_col(X, X['indrel'], 'indrel', lambda x: 1 if 1 else 0)
+
+        X.indrel_1mes = X.indrel_1mes.map(lambda x: self.run_f(str(x)[0]))
+        X.tiprel_1mes = X.tiprel_1mes.map(lambda x: self.run_f2(str(x)[0]))
+        X.ind_empleado = X.ind_empleado.map(lambda x: 'not_emp' if x=='N' else x)
+        X.ind_empleado = X.ind_empleado.map(lambda x: self.run_f3(x))
+        X.segmento = X.segmento.map(lambda x: 'none_type_work' if x=='NaN' else x) 
+        X.indfall = X.indfall.map(lambda x: 1 if 'S' else 0)
+
+        cols_to_drop = ['fecha_dato','fecha_alta','ult_fec_cli_1t','cod_prov','sexo','indresi','indext','ind_nuevo']
+        X = self.drop_col(X,cols_to_drop)
+        return X
+
+    def __init__(self, ide):
+        self.read_path = self.get_path(ide)
+        pass
+        
+    def __main__(self, path):
+        
+        # Read in the dataset
+        dataset = self.read_data(path)
+        # Create the feature set
+        X = self.read_X(dataset, 0, 24)
+
+        X = self.clean_dataset(X)
+    
+    def set_dummy_variables(self):
+
+        d_account_type = pd.get_dummies(self.X['indrel_1mes'])
+        d_employee_ind = pd.get_dummies(self.X['ind_empleado'])
+        d_customer_relation = pd.get_dummies(self.X['tiprel_1mes'])
+        d_channel = pd.get_dummies(self.X['canal_entrada'])
+        d_province = pd.get_dummies(self.X['nomprov'])
+        d_country_res = pd.get_dummies(self.X['pais_residencia'])
+        d_class = pd.get_dummies(self.X['segmento'])
+
+        # Attach all of the dummy variables to the feature set and delete the columns that
+        # they came from
+        self.X = pd.concat([self.X, d_employee_ind, d_account_type, d_customer_relation,
+                    d_channel, d_province, d_country_res, d_class], axis=1)
+
+        ls= ['indrel_1mes','ind_empleado', 'tiprel_1mes', 'canal_entrada', 'nomprov', 'pais_residencia', 'segmento']
+        X = self.drop_col(X, ls)
+        return X
 
         # ======================================================================================
         #                            SCALING THE CONTINUOUS VARIABLES
         # ======================================================================================
-        if scaling:
-            min_max_scaler = preprocessing.MinMaxScaler()
+    
+        
+    def scaling(self, X):
+        min_max_scaler = preprocessing.MinMaxScaler()
 
-            self.X.age = min_max_scaler.fit_transform(self.X.age)
-            self.X.days_recorded_from_ny = min_max_scaler.fit_transform(self.X.days_recorded_from_ny)
-            self.X.days_primary_churn_from_now = min_max_scaler.fit_transform(self.X.days_primary_churn_from_now)
-            self.X.tenure_days_from_now =  min_max_scaler.fit_transform(self.X.tenure_days_from_now)
-            self.X.antiguedad =  min_max_scaler.fit_transform(self.X.antiguedad)
-            self.X.renta =  min_max_scaler.fit_transform(self.X.renta)
-            #self.X.renta[self.earn_ind[0]] = -2
+        X.age = min_max_scaler.fit_transform(self.X.age)
+        X.days_recorded_from_ny = min_max_scaler.fit_transform(self.X.days_recorded_from_ny)
+        X.days_primary_churn_from_now = min_max_scaler.fit_transform(self.X.days_primary_churn_from_now)
+        X.tenure_days_from_now =  min_max_scaler.fit_transform(self.X.tenure_days_from_now)
+        X.antiguedad =  min_max_scaler.fit_transform(self.X.antiguedad)
+        X.renta =  min_max_scaler.fit_transform(self.X.renta)
 
-        #Set the target set
-        self.Y = self.dataset.iloc[self.X.index, 26:-1]
-        self.Y.ind_nomina_ult1 = self.Y.ind_nomina_ult1.fillna(0)
-        self.Y.ind_nom_pens_ult1 = self.Y.ind_nom_pens_ult1.fillna(0)
-        self.Y.ind_nomina_ult1 = self.Y.ind_nomina_ult1.apply(lambda x: int(x))
-        self.Y.ind_nom_pens_ult1 = self.Y.ind_nom_pens_ult1.apply(lambda x: int(x))
-        self.Y.drop(self.Y.columns.values[1], axis=1, inplace=True)
-        self.Y.drop(self.Y.columns.values[5], axis=1, inplace=True)
-        self.Y.drop(self.Y.columns.values[6], axis=1, inplace=True)
+    def set_target(self, dataset):
+        # Set the target set
+        Y = dataset.iloc[self.X.index, 26:-1]
+        Y.ind_nomina_ult1 = Y.ind_nomina_ult1.fillna(0)
+        Y.ind_nom_pens_ult1 = Y.ind_nom_pens_ult1.fillna(0)
+        Y.ind_nomina_ult1 = Y.ind_nomina_ult1.map(lambda x: np.int(x))
+        Y.ind_nom_pens_ult1 = Y.ind_nom_pens_ult1.map(lambda x: np.int(x))
 
     def return_list_of_cat_cols(self):
         for i in self.X.columns:
