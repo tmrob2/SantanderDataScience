@@ -24,6 +24,9 @@
   <ItemGroup>
     <Compile Include="InputData.py" />
     <Compile Include="Research.py" />
+    <Compile Include="scratchpad.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SDS.py" />
   </ItemGroup>
   <PropertyGroup>
